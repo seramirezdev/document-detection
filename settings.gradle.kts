@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "document-detection"
 include(":document-detection-lib")
+include(":document-detection-app")

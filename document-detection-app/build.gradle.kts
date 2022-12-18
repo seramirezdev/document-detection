@@ -1,22 +1,19 @@
 plugins {
-    id("com.android.library")
-    id("kotlin-android")
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
     compileSdk = AppConfig.compileSdk
 
     defaultConfig {
+        applicationId = "com.seramirezdev.document_detection_app"
         minSdk = AppConfig.minSdk
         targetSdk = AppConfig.targetSdk
+        versionCode = AppConfig.versionCode
+        versionName = AppConfig.versionName
 
         testInstrumentationRunner = AppConfig.androidTestInstrumentation
-
-        externalNativeBuild {
-            cmake {
-                cppFlags("")
-            }
-        }
     }
 
     buildTypes {
@@ -35,16 +32,13 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    externalNativeBuild {
-        cmake {
-            path("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
 }
 
 dependencies {
 
     implementation(Dependencies.coreKtx)
+    implementation(Dependencies.appcompat)
+    implementation(Dependencies.material)
+    implementation(Dependencies.constraintlayout)
     testImplementation(TestDependencies.junit)
 }
