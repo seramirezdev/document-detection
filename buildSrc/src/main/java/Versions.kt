@@ -7,5 +7,7 @@ object Versions {
     const val constraintlayout = "2.1.4"
     const val material = "1.6.0"
 
+    const val cameraX = "1.3.0-alpha02"
+
     const val junit = "4.13.2"
 }

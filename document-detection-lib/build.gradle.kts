@@ -35,6 +35,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
     externalNativeBuild {
         cmake {
             path("src/main/cpp/CMakeLists.txt")
@@ -44,7 +47,14 @@ android {
 }
 
 dependencies {
-
     implementation(Dependencies.coreKtx)
+
+    implementation(Dependencies.cameraCore)
+    implementation(Dependencies.cameraCamera2)
+    implementation(Dependencies.cameraLifecycle)
+    implementation(Dependencies.cameraVideo)
+    implementation(Dependencies.cameraView)
+    implementation(Dependencies.cameraExtensions)
+
     testImplementation(TestDependencies.junit)
 }
