@@ -36,6 +36,8 @@ android {
 
 dependencies {
 
+    implementation(files("../libs/document-detection-lib-debug.aar"))
+
     implementation(Dependencies.coreKtx)
     implementation(Dependencies.appcompat)
     implementation(Dependencies.material)
