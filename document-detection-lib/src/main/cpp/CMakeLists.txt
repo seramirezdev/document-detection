@@ -7,8 +7,6 @@ cmake_minimum_required(VERSION 3.22.1)
 
 # Declares and names the project.
 
-project("document-detection")
-
 # OpenCV
 set(OpenCV_STATIC on)
 set(OpenCV_DIR $ENV{OPENCV_ANDROID}/sdk/native/jni)
