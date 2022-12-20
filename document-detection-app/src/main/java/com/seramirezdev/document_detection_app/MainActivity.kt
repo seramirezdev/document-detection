@@ -1,9 +1,9 @@
 package com.seramirezdev.document_detection_app
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.seramirezdev.document_detection_app.databinding.ActivityMainBinding
-import com.seramirezdev.lib.CameraTest
+import com.seramirezdev.lib.showCamera
 
 class MainActivity : AppCompatActivity() {
 
@@ -13,6 +13,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.number.text = CameraTest().getNumber().toString()
+        binding.scanBtn.setOnClickListener { showCamera(this) }
     }
 }

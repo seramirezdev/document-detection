@@ -48,6 +48,8 @@ android {
 
 dependencies {
     implementation(Dependencies.coreKtx)
+    implementation(Dependencies.appcompat)
+    implementation(Dependencies.constraintlayout)
 
     implementation(Dependencies.cameraCore)
     implementation(Dependencies.cameraCamera2)
