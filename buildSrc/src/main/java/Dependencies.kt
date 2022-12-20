@@ -12,5 +12,4 @@ object Dependencies {
     const val cameraVideo = "androidx.camera:camera-video:${Versions.cameraX}"
     const val cameraView = "androidx.camera:camera-view:${Versions.cameraX}"
     const val cameraExtensions = "androidx.camera:camera-extensions:${Versions.cameraX}"
-
 }

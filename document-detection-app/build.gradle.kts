@@ -32,11 +32,15 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
 
-    implementation(files("../libs/document-detection-lib-debug.aar"))
+    // implementation(files("../libs/document-detection-lib-debug.aar"))
+    implementation(project(mapOf("path" to ":document-detection-lib")))
 
     implementation(Dependencies.coreKtx)
     implementation(Dependencies.appcompat)
