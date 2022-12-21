@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/document-detection-app" />
             <option value="$PROJECT_DIR$/document-detection-lib" />
+            <option value="$PROJECT_DIR$/../../../../tools/OpenCV-android-sdk/sdk" />
           </set>
         </option>
       </GradleProjectSettings>

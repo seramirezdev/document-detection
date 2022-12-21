@@ -2,10 +2,10 @@ package com.seramirezdev.lib
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.seramirezdev.lib.extensions.showToast
 
 internal class RequestCameraPermission(
     private val activity: AppCompatActivity,
@@ -28,15 +28,16 @@ internal class RequestCameraPermission(
         if (isGranted) {
             onSuccess()
         } else {
-            Toast.makeText(
-                activity, activity.getString(R.string.camera_permissions_error), Toast.LENGTH_SHORT
-            ).show()
+            activity.showToast(R.string.camera_permissions_error)
             activity.finish()
         }
     }
 
     private fun checkCameraPermission() =
-        ContextCompat.checkSelfPermission(activity, REQUIRED_PERMISSION) == PackageManager.PERMISSION_GRANTED
+        ContextCompat.checkSelfPermission(
+            activity,
+            REQUIRED_PERMISSION
+        ) == PackageManager.PERMISSION_GRANTED
 
     companion object {
         private const val REQUIRED_PERMISSION = Manifest.permission.CAMERA
