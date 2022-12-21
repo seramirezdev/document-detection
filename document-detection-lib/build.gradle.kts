@@ -1,12 +1,15 @@
 plugins {
-    id("com.android.library")
+    id("com.android.application")
     id("kotlin-android")
 }
+
+val opencvDir: String = System.getenv("OPENCV_ANDROID")
 
 android {
     compileSdk = AppConfig.compileSdk
 
     defaultConfig {
+        applicationId = "com.seramirezdev.document_detection_lib"
         minSdk = AppConfig.minSdk
         targetSdk = AppConfig.targetSdk
 
@@ -15,10 +18,10 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags("")
+                arguments("-DOpenCV_DIR=$opencvDir/sdk/native/jni")
             }
         }
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -44,12 +47,16 @@ android {
             version = "3.22.1"
         }
     }
+    packagingOptions.pickFirsts.add("**/*.so")
 }
 
 dependencies {
+    implementation(project(":opencv-lib"))
+
     implementation(Dependencies.coreKtx)
     implementation(Dependencies.appcompat)
     implementation(Dependencies.constraintlayout)
+    implementation(Dependencies.material)
 
     implementation(Dependencies.cameraCore)
     implementation(Dependencies.cameraCamera2)
