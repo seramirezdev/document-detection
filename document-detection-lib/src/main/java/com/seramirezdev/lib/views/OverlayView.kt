@@ -1,51 +1,67 @@
 package com.seramirezdev.lib.views
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Size
 import android.view.View
 import com.seramirezdev.lib.models.Line
 
-class OverlayView : View {
+class OverlayView @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
-    constructor(c: Context?) : super(c) {
-        init()
-    }
+    private var previewWidth: Int = 0
+    private var widthScaleFactor = 1.0f
+    private var previewHeight: Int = 0
+    private var heightScaleFactor = 1.0f
 
-    constructor(c: Context?, attr: AttributeSet?) : super(c, attr) {
-        init()
-    }
+    private var lines = emptyArray<Line>()
+    private var orientation = Configuration.ORIENTATION_PORTRAIT
 
-    constructor(c: Context?, attr: AttributeSet?, defStyle: Int) : super(c, attr, defStyle) {
-        init()
-    }
-
-    private val lines = mutableListOf<Line>()
-
-    private lateinit var paint: Paint
-
-    private fun init() {
-        paint = Paint().apply {
-            color = Color.GREEN
-            strokeWidth = 3.0f
-            style = Paint.Style.STROKE
-        }
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.YELLOW
+        style = Paint.Style.STROKE
+        strokeWidth = 5.0f
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        drawOverlay(canvas)
+    }
+
+    fun setPreviewSize(size: Size) {
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            previewWidth = size.width
+            previewHeight = size.height
+        } else {
+            previewWidth = size.height
+            previewHeight = size.width
+        }
+    }
+
+    fun setLines(lines: List<Line>) {
+        this.lines = lines.toTypedArray()
+        postInvalidate()
+    }
+
+    private fun drawOverlay(canvas: Canvas) {
+        widthScaleFactor = width.toFloat() / previewWidth
+        heightScaleFactor = height.toFloat() / previewHeight
         lines.forEach { line ->
-            line.apply {
-                canvas.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y, paint)
+            with(line) {
+                val startX = translateX(startPoint.x)
+                val startY = translateY(startPoint.y)
+                val endX = translateX(endPoint.x)
+                val endY = translateY(endPoint.y)
+                canvas.drawLine(startX, startY, endX, endY, paint)
             }
         }
     }
 
-    fun drawLines(lines: List<Line>) {
-        this.lines.clear()
-        this.lines.addAll(lines)
-        invalidate()
-    }
+    private fun translateX(x: Float): Float = x * widthScaleFactor
+    private fun translateY(y: Float): Float = y * heightScaleFactor
 }

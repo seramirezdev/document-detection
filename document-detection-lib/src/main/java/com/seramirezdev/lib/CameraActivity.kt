@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewGroup.LayoutParams
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
@@ -13,23 +14,28 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import com.seramirezdev.lib.analyzer.DocumentDetector
+import com.seramirezdev.lib.analyzer.DocumentAnalyzer
 import com.seramirezdev.lib.databinding.ActivityCameraBinding
 import com.seramirezdev.lib.extensions.getExecutor
 import com.seramirezdev.lib.extensions.showToast
-import com.seramirezdev.lib.models.Line
+import com.seramirezdev.lib.views.OverlayView
 
 internal class CameraActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCameraBinding
+
+    private lateinit var overlayView: OverlayView
 
     @ExperimentalGetImage
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCameraBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         RequestCameraPermission(this, onSuccess = ::startCamera)
+
+        overlayView = OverlayView(this)
+        val layoutOverlay = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        addContentView(overlayView, layoutOverlay)
     }
 
     @ExperimentalGetImage
@@ -67,13 +73,10 @@ internal class CameraActivity : AppCompatActivity() {
 
     @ExperimentalGetImage
     private fun setupImageAnalysis(): ImageAnalysis {
+        val documentAnalyzer = DocumentAnalyzer(this@CameraActivity, overlayView)
         return ImageAnalysis.Builder().build().apply {
-            setAnalyzer(getExecutor(), DocumentDetector(this@CameraActivity, ::onDocumentDetected))
+            setAnalyzer(getExecutor(), documentAnalyzer)
         }
-    }
-
-    private fun onDocumentDetected(lines: List<Line>) {
-        binding.documentDetectedOverlay.drawLines(lines)
     }
 
     private fun takePhoto(imageCapture: ImageCapture) {

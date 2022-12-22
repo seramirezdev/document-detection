@@ -2,6 +2,7 @@ package com.seramirezdev.lib.analyzer
 
 import android.content.Context
 import android.graphics.PointF
+import android.util.Size
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -9,12 +10,14 @@ import com.seramirezdev.lib.converter.YuvToRgbConverter
 import com.seramirezdev.lib.extensions.rotate
 import com.seramirezdev.lib.extensions.toBitmap
 import com.seramirezdev.lib.models.Line
+import com.seramirezdev.lib.views.OverlayView
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 
 @ExperimentalGetImage
-class DocumentDetector(context: Context, private val listener: DocumentDetectorListener) :
-    ImageAnalysis.Analyzer {
+class DocumentAnalyzer(
+    context: Context, private val overlayView: OverlayView
+) : ImageAnalysis.Analyzer {
 
     private val converter = YuvToRgbConverter(context)
 
@@ -23,6 +26,7 @@ class DocumentDetector(context: Context, private val listener: DocumentDetectorL
             imageProxy.close()
             return
         }
+        overlayView.setPreviewSize(Size(imageProxy.width, imageProxy.height))
 
         val bitmap = imageProxy.toBitmap(converter)
         val frame = Mat()
@@ -31,8 +35,7 @@ class DocumentDetector(context: Context, private val listener: DocumentDetectorL
         Utils.bitmapToMat(bitmap.rotate(rotation), frame)
 
         val corners = scanFrame(frame.nativeObjAddr)
-        val lines = getLines(corners)
-        listener.onDocumentDetected(lines)
+        overlayView.setLines(getLines(corners))
         imageProxy.close()
     }
 
@@ -42,9 +45,15 @@ class DocumentDetector(context: Context, private val listener: DocumentDetectorL
         val size = corners.size
         return corners.mapIndexed { i, corner ->
             if (i == 0) {
-                Line(startPoint = corners[size - 1].getPoint(), endPoint = corner.getPoint())
+                Line(
+                    startPoint = corners[size - 1].getPoint(),
+                    endPoint = corner.getPoint()
+                )
             } else {
-                Line(startPoint = corners[i - 1].getPoint(), endPoint = corner.getPoint())
+                Line(
+                    startPoint = corners[i - 1].getPoint(),
+                    endPoint = corner.getPoint()
+                )
             }
         }
     }
