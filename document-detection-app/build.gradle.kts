@@ -35,12 +35,21 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    packagingOptions.pickFirsts.add("**/*.so")
 }
 
 dependencies {
 
-    // implementation(files("../libs/document-detection-lib-debug.aar"))
-    implementation(project(mapOf("path" to ":document-detection-lib")))
+    implementation(files("./libs/document-detection-lib-release.aar"))
+    implementation(project(":opencv-lib"))
+
+    implementation(Dependencies.cameraCore)
+    implementation(Dependencies.cameraCamera2)
+    implementation(Dependencies.cameraLifecycle)
+    implementation(Dependencies.cameraVideo)
+    implementation(Dependencies.cameraExtensions)
+    implementation(Dependencies.cameraView)
+
 
     implementation(Dependencies.coreKtx)
     implementation(Dependencies.appcompat)

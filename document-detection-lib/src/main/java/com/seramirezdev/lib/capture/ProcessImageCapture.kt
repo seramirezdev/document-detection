@@ -60,8 +60,8 @@ class ProcessImageCapture(
         val endY = sorted.last().point.y - startY
 
         val croppedBitmap = Bitmap.createBitmap(bitmap, startX, startY, endX, endY)
-        val uri = saveBitmapToStorage(croppedBitmap)
-        onImageSaved(uri)
+        val fileName = saveBitmapToStorage(croppedBitmap)
+        onImageSaved(fileName)
         imageProxy.close()
     }
 

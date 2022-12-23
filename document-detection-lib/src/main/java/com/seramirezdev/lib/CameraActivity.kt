@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Size
 import android.view.MotionEvent
 import android.view.View
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -23,8 +22,6 @@ import androidx.constraintlayout.widget.ConstraintSet.BOTTOM
 import androidx.constraintlayout.widget.ConstraintSet.END
 import androidx.constraintlayout.widget.ConstraintSet.START
 import androidx.constraintlayout.widget.ConstraintSet.TOP
-import com.seramirezdev.lib.CameraActivity.Companion.IMAGE_URI_KEY
-import com.seramirezdev.lib.CameraActivity.Companion.RESULT_OK
 import com.seramirezdev.lib.analyzer.DocumentAnalyzer
 import com.seramirezdev.lib.analyzer.DocumentDetectionListener.State
 import com.seramirezdev.lib.capture.ProcessImageCapture
@@ -34,7 +31,7 @@ import com.seramirezdev.lib.extensions.showToast
 import com.seramirezdev.lib.views.OverlayView
 
 @ExperimentalGetImage
-internal class CameraActivity : AppCompatActivity() {
+class CameraActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCameraBinding
 
@@ -111,9 +108,9 @@ internal class CameraActivity : AppCompatActivity() {
     }
 
     private fun takePhoto(imageCapture: ImageCapture) {
-        imageCapture.takePicture(getExecutor(), ProcessImageCapture(this) { uri ->
+        imageCapture.takePicture(getExecutor(), ProcessImageCapture(this) { fileName ->
             val intent = Intent().apply {
-                putExtra(IMAGE_URI_KEY, uri)
+                putExtra(IMAGE_URI_KEY, fileName)
             }
             setResult(RESULT_OK, intent)
             finish()
@@ -140,22 +137,11 @@ internal class CameraActivity : AppCompatActivity() {
 
     companion object {
 
-        const val RESULT_OK = 1
         const val IMAGE_URI_KEY = "IMAGE_URI_KEY"
+        const val RESULT_OK = 1
 
         init {
             System.loadLibrary("native-lib")
         }
-    }
-}
-
-@ExperimentalGetImage
-fun showCamera(activity: AppCompatActivity) {
-    activity.registerForActivityResult(StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            result.data?.extras?.getString(IMAGE_URI_KEY)
-        }
-    }.apply {
-        launch(Intent(activity, CameraActivity::class.java))
     }
 }

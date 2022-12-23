@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.application")
+    id("com.android.library")
     id("kotlin-android")
 }
 
@@ -9,7 +9,6 @@ android {
     compileSdk = AppConfig.compileSdk
 
     defaultConfig {
-        applicationId = "com.seramirezdev.document_detection_lib"
         minSdk = AppConfig.minSdk
         targetSdk = AppConfig.targetSdk
 
