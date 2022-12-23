@@ -8,7 +8,6 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Size
 import android.view.View
-import com.seramirezdev.lib.extensions.translate
 import com.seramirezdev.lib.models.Line
 
 class OverlayView @JvmOverloads constructor(
@@ -58,12 +57,15 @@ class OverlayView @JvmOverloads constructor(
         heightScaleFactor = height.toFloat() / previewHeight
         lines.forEach { line ->
             with(line) {
-                val startX = startPoint.x.translate(widthScaleFactor)
-                val startY = startPoint.y.translate(heightScaleFactor)
-                val endX = endPoint.x.translate(widthScaleFactor)
-                val endY = endPoint.y.translate(heightScaleFactor)
+                val startX = translateX(startPoint.x)
+                val startY = translateY(startPoint.y)
+                val endX = translateX(endPoint.x)
+                val endY = translateY(endPoint.y)
                 canvas.drawLine(startX, startY, endX, endY, paint)
             }
         }
     }
+
+    private fun translateX(x: Float) = x * widthScaleFactor
+    private fun translateY(y: Float) = y * heightScaleFactor
 }
