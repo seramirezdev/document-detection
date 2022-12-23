@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Size
 import android.view.View
+import com.seramirezdev.lib.extensions.translate
 import com.seramirezdev.lib.models.Line
 
 class OverlayView @JvmOverloads constructor(
@@ -22,8 +23,12 @@ class OverlayView @JvmOverloads constructor(
     private var lines = emptyArray<Line>()
     private var orientation = Configuration.ORIENTATION_PORTRAIT
 
+    init {
+        id = generateViewId()
+    }
+
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.YELLOW
+        color = Color.GREEN
         style = Paint.Style.STROKE
         strokeWidth = 5.0f
     }
@@ -43,8 +48,8 @@ class OverlayView @JvmOverloads constructor(
         }
     }
 
-    fun setLines(lines: List<Line>) {
-        this.lines = lines.toTypedArray()
+    fun setLines(lines: Array<Line>) {
+        this.lines = lines
         postInvalidate()
     }
 
@@ -53,15 +58,12 @@ class OverlayView @JvmOverloads constructor(
         heightScaleFactor = height.toFloat() / previewHeight
         lines.forEach { line ->
             with(line) {
-                val startX = translateX(startPoint.x)
-                val startY = translateY(startPoint.y)
-                val endX = translateX(endPoint.x)
-                val endY = translateY(endPoint.y)
+                val startX = startPoint.x.translate(widthScaleFactor)
+                val startY = startPoint.y.translate(heightScaleFactor)
+                val endX = endPoint.x.translate(widthScaleFactor)
+                val endY = endPoint.y.translate(heightScaleFactor)
                 canvas.drawLine(startX, startY, endX, endY, paint)
             }
         }
     }
-
-    private fun translateX(x: Float): Float = x * widthScaleFactor
-    private fun translateY(y: Float): Float = y * heightScaleFactor
 }

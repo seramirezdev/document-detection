@@ -1,25 +1,24 @@
 package com.seramirezdev.lib.analyzer
 
-import android.content.Context
 import android.graphics.PointF
 import android.util.Size
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.seramirezdev.lib.converter.YuvToRgbConverter
+import com.seramirezdev.lib.analyzer.DocumentDetectionListener.*
 import com.seramirezdev.lib.extensions.rotate
 import com.seramirezdev.lib.extensions.toBitmap
 import com.seramirezdev.lib.models.Line
+import com.seramirezdev.lib.scanner.DocumentScanner.findDocumentCorners
 import com.seramirezdev.lib.views.OverlayView
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 
 @ExperimentalGetImage
 class DocumentAnalyzer(
-    context: Context, private val overlayView: OverlayView
+    private val overlayView: OverlayView,
+    private val listener: DocumentDetectionListener
 ) : ImageAnalysis.Analyzer {
-
-    private val converter = YuvToRgbConverter(context)
 
     override fun analyze(imageProxy: ImageProxy) {
         if (imageProxy.image == null) {
@@ -28,20 +27,21 @@ class DocumentAnalyzer(
         }
         overlayView.setPreviewSize(Size(imageProxy.width, imageProxy.height))
 
-        val bitmap = imageProxy.toBitmap(converter)
-        val frame = Mat()
         val rotation = imageProxy.imageInfo.rotationDegrees
+        val bitmap = imageProxy.toBitmap()?.apply { rotate(rotation) } ?: return
+        val frame = Mat()
 
-        Utils.bitmapToMat(bitmap.rotate(rotation), frame)
+        Utils.bitmapToMat(bitmap, frame)
+        val corners = findDocumentCorners(frame.nativeObjAddr)
+        val state = if (corners.isEmpty()) State.Scanning else State.DocumentDetected
 
-        val corners = scanFrame(frame.nativeObjAddr)
         overlayView.setLines(getLines(corners))
+        listener.onStateChanged(state)
+
         imageProxy.close()
     }
 
-    private external fun scanFrame(frameObjAddress: Long): Array<IntArray>
-
-    private fun getLines(corners: Array<IntArray>): List<Line> {
+    private fun getLines(corners: Array<IntArray>): Array<Line> {
         val size = corners.size
         return corners.mapIndexed { i, corner ->
             if (i == 0) {
@@ -55,14 +55,8 @@ class DocumentAnalyzer(
                     endPoint = corner.getPoint()
                 )
             }
-        }
+        }.toTypedArray()
     }
 
     private fun IntArray.getPoint() = PointF(this[0].toFloat(), this[1].toFloat())
-
-    companion object {
-        init {
-            System.loadLibrary("opencv_java3")
-        }
-    }
 }

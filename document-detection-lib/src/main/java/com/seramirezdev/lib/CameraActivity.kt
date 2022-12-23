@@ -3,42 +3,62 @@ package com.seramirezdev.lib
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.ViewGroup.LayoutParams
+import android.view.MotionEvent
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.constraintlayout.widget.ConstraintSet.BOTTOM
+import androidx.constraintlayout.widget.ConstraintSet.END
+import androidx.constraintlayout.widget.ConstraintSet.START
+import androidx.constraintlayout.widget.ConstraintSet.TOP
 import com.seramirezdev.lib.analyzer.DocumentAnalyzer
+import com.seramirezdev.lib.analyzer.DocumentDetectionListener.State
+import com.seramirezdev.lib.capture.ProcessImageCapture
 import com.seramirezdev.lib.databinding.ActivityCameraBinding
 import com.seramirezdev.lib.extensions.getExecutor
 import com.seramirezdev.lib.extensions.showToast
 import com.seramirezdev.lib.views.OverlayView
 
+@ExperimentalGetImage
 internal class CameraActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCameraBinding
 
     private lateinit var overlayView: OverlayView
 
-    @ExperimentalGetImage
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCameraBinding.inflate(layoutInflater)
         setContentView(binding.root)
         RequestCameraPermission(this, onSuccess = ::startCamera)
-
-        overlayView = OverlayView(this)
-        val layoutOverlay = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        addContentView(overlayView, layoutOverlay)
+        setOverlay()
     }
 
-    @ExperimentalGetImage
+    private fun setOverlay() {
+        overlayView = OverlayView(this)
+        addContentView(
+            overlayView,
+            LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        )
+        ConstraintSet().apply {
+            clone(binding.root)
+            connect(overlayView.id, TOP, binding.viewFinder.id, TOP)
+            connect(overlayView.id, BOTTOM, binding.viewFinder.id, BOTTOM)
+            connect(overlayView.id, START, binding.viewFinder.id, START)
+            connect(overlayView.id, END, binding.viewFinder.id, END)
+            binding.root.setConstraintSet(this)
+        }
+    }
+
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
@@ -49,9 +69,10 @@ internal class CameraActivity : AppCompatActivity() {
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+                val control = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture, imageAnalysis
                 )
+                setupTapToFocus(control)
             } catch (exc: Exception) {
                 showToast(R.string.failed_access_camera)
                 finish()
@@ -71,30 +92,42 @@ internal class CameraActivity : AppCompatActivity() {
         }
     }
 
-    @ExperimentalGetImage
     private fun setupImageAnalysis(): ImageAnalysis {
-        val documentAnalyzer = DocumentAnalyzer(this@CameraActivity, overlayView)
+        val documentAnalyzer = DocumentAnalyzer(overlayView) { state ->
+            binding.detectionStateTxt.text = if (state is State.Scanning) {
+                getString(R.string.scanning)
+            } else {
+                getString(R.string.document_detected)
+            }
+        }
         return ImageAnalysis.Builder().build().apply {
             setAnalyzer(getExecutor(), documentAnalyzer)
         }
     }
 
     private fun takePhoto(imageCapture: ImageCapture) {
-        imageCapture.takePicture(
-            getExecutor(), object : ImageCapture.OnImageCapturedCallback() {
-                override fun onError(exc: ImageCaptureException) {
-                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-                }
+        imageCapture.takePicture(getExecutor(), ProcessImageCapture(this))
+    }
 
-                override fun onCaptureSuccess(image: ImageProxy) {
-                    image.close()
+    private fun setupTapToFocus(camera: Camera) {
+        binding.viewFinder.setOnTouchListener(View.OnTouchListener { v, motionEvent ->
+            val eventConsumed = when (motionEvent.action) {
+                MotionEvent.ACTION_DOWN -> true
+                MotionEvent.ACTION_UP -> {
+                    val factory = binding.viewFinder.meteringPointFactory
+                    val point = factory.createPoint(motionEvent.x, motionEvent.y)
+                    val action = FocusMeteringAction.Builder(point).build()
+                    camera.cameraControl.startFocusAndMetering(action)
+                    true
                 }
+                else -> false
             }
-        )
+            v.performClick()
+            return@OnTouchListener eventConsumed
+        })
     }
 
     companion object {
-        private val TAG = CameraActivity::class.simpleName
 
         init {
             System.loadLibrary("native-lib")
@@ -102,6 +135,7 @@ internal class CameraActivity : AppCompatActivity() {
     }
 }
 
+@ExperimentalGetImage
 fun showCamera(context: Context) {
     with(context) {
         val intent = Intent(this, CameraActivity::class.java)
