@@ -50,7 +50,6 @@ dependencies {
     implementation(Dependencies.cameraExtensions)
     implementation(Dependencies.cameraView)
 
-
     implementation(Dependencies.coreKtx)
     implementation(Dependencies.appcompat)
     implementation(Dependencies.material)

@@ -51,7 +51,10 @@ class ProcessImageCapture(
         Utils.bitmapToMat(bitmap, mat)
         val corners = findDocumentCorners(mat.nativeObjAddr)
 
-        if (corners.isEmpty()) context.showToast(R.string.document_no_detected)
+        if (corners.isEmpty()) {
+            context.showToast(R.string.document_no_detected)
+            return
+        }
 
         val sorted = sortCorners(corners)
         val startX = sorted.first().point.x

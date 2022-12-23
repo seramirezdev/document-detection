@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Document-detection-app</string>
     <string name="scan">Scan document</string>
+    <string name="start_scanning_your_documents">Start scanning your documents!</string>
 </resources>
