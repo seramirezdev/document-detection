@@ -1,10 +1,12 @@
 package com.seramirezdev.lib
 
-import android.content.Context
 import android.content.Intent
+import android.graphics.ImageFormat
 import android.os.Bundle
+import android.util.Size
 import android.view.MotionEvent
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -15,11 +17,14 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.constraintlayout.widget.ConstraintSet.BOTTOM
 import androidx.constraintlayout.widget.ConstraintSet.END
 import androidx.constraintlayout.widget.ConstraintSet.START
 import androidx.constraintlayout.widget.ConstraintSet.TOP
+import com.seramirezdev.lib.CameraActivity.Companion.IMAGE_URI_KEY
+import com.seramirezdev.lib.CameraActivity.Companion.RESULT_OK
 import com.seramirezdev.lib.analyzer.DocumentAnalyzer
 import com.seramirezdev.lib.analyzer.DocumentDetectionListener.State
 import com.seramirezdev.lib.capture.ProcessImageCapture
@@ -45,10 +50,7 @@ internal class CameraActivity : AppCompatActivity() {
 
     private fun setOverlay() {
         overlayView = OverlayView(this)
-        addContentView(
-            overlayView,
-            LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-        )
+        addContentView(overlayView, LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
         ConstraintSet().apply {
             clone(binding.root)
             connect(overlayView.id, TOP, binding.viewFinder.id, TOP)
@@ -87,9 +89,12 @@ internal class CameraActivity : AppCompatActivity() {
     }
 
     private fun setupImageCapture(): ImageCapture {
-        return ImageCapture.Builder().build().apply {
-            binding.takePhotoBtn.setOnClickListener { takePhoto(this) }
-        }
+        return ImageCapture.Builder()
+            .setBufferFormat(ImageFormat.YUV_420_888)
+            .setTargetResolution(Size(1080, 1920))
+            .build().apply {
+                binding.takePhotoBtn.setOnClickListener { takePhoto(this) }
+            }
     }
 
     private fun setupImageAnalysis(): ImageAnalysis {
@@ -106,7 +111,13 @@ internal class CameraActivity : AppCompatActivity() {
     }
 
     private fun takePhoto(imageCapture: ImageCapture) {
-        imageCapture.takePicture(getExecutor(), ProcessImageCapture(this))
+        imageCapture.takePicture(getExecutor(), ProcessImageCapture(this) { uri ->
+            val intent = Intent().apply {
+                putExtra(IMAGE_URI_KEY, uri)
+            }
+            setResult(RESULT_OK, intent)
+            finish()
+        })
     }
 
     private fun setupTapToFocus(camera: Camera) {
@@ -129,6 +140,9 @@ internal class CameraActivity : AppCompatActivity() {
 
     companion object {
 
+        const val RESULT_OK = 1
+        const val IMAGE_URI_KEY = "IMAGE_URI_KEY"
+
         init {
             System.loadLibrary("native-lib")
         }
@@ -136,9 +150,12 @@ internal class CameraActivity : AppCompatActivity() {
 }
 
 @ExperimentalGetImage
-fun showCamera(context: Context) {
-    with(context) {
-        val intent = Intent(this, CameraActivity::class.java)
-        startActivity(intent)
+fun showCamera(activity: AppCompatActivity) {
+    activity.registerForActivityResult(StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.extras?.getString(IMAGE_URI_KEY)
+        }
+    }.apply {
+        launch(Intent(activity, CameraActivity::class.java))
     }
 }

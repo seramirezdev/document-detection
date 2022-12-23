@@ -62,11 +62,11 @@ inline void findDocumentCorners(const cv::Mat &image, std::vector<cv::Point> &co
 
 extern "C"
 JNIEXPORT jobjectArray JNICALL
-Java_com_seramirezdev_lib_analyzer_DocumentAnalyzer_scanFrame(
-        JNIEnv *env, jobject, jlong frameObjAddress
+Java_com_seramirezdev_lib_scanner_DocumentScanner_findDocumentCorners(
+        JNIEnv *env, jobject, jlong frame_obj_address
 ) {
     std::vector<cv::Point> corners;
-    auto *frame = (cv::Mat *) frameObjAddress;
+    auto *frame = (cv::Mat *) frame_obj_address;
     findDocumentCorners(*frame, corners);
 
     jclass intArrayClass = env->FindClass("[I");

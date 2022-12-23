@@ -28,10 +28,10 @@ class DocumentAnalyzer(
         overlayView.setPreviewSize(Size(imageProxy.width, imageProxy.height))
 
         val rotation = imageProxy.imageInfo.rotationDegrees
-        val bitmap = imageProxy.toBitmap()?.apply { rotate(rotation) } ?: return
+        val bitmap = imageProxy.toBitmap() ?: return
         val frame = Mat()
 
-        Utils.bitmapToMat(bitmap, frame)
+        Utils.bitmapToMat(bitmap.rotate(rotation), frame)
         val corners = findDocumentCorners(frame.nativeObjAddr)
         val state = if (corners.isEmpty()) State.Scanning else State.DocumentDetected
 

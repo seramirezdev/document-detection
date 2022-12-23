@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="take_photo">Take Photo</string>
     <string name="camera_permissions_error">Permission not granted by the user.</string>
-    <string name="scan">Scan</string>
     <string name="failed_access_camera">Failed to access the camera.</string>
     <string name="scanning">Scanning…</string>
     <string name="document_detected">Document detected!</string>
     <string name="failed_capture_photo">Failed to capture the photo, please try again.</string>
+    <string name="document_no_detected">Document no detected, please try again.</string>
+    <string name="error_saving_photo">Error saving photo, please try again.</string>
 </resources>

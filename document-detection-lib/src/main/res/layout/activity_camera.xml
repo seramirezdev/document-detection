@@ -2,17 +2,17 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:fitsSystemWindows="false"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="false">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/detection_state_container"
         android:layout_width="0dp"
         android:layout_height="@dimen/detection_state_container_height"
-        android:paddingTop="@dimen/detection_state_container_paddingTop"
         android:background="@color/purple_700"
         android:gravity="center_horizontal"
+        android:paddingTop="@dimen/detection_state_container_paddingTop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -43,9 +43,8 @@
         android:layout_width="@dimen/take_photo_btn_size"
         android:layout_height="@dimen/take_photo_btn_size"
         android:layout_marginBottom="@dimen/take_photo_btn_marginBottom"
-        android:elevation="@dimen/take_photo_btn_elevation"
-        android:text="@string/take_photo"
         android:background="@drawable/camera_button"
+        android:elevation="@dimen/take_photo_btn_elevation"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
