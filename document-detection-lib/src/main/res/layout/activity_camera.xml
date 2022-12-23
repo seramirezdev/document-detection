@@ -1,22 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fitsSystemWindows="false"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/detection_state_container"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/detection_state_container_height"
+        android:paddingTop="@dimen/detection_state_container_paddingTop"
+        android:background="@color/purple_700"
+        android:gravity="center_horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/detection_state_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/detection_state_txt_textSize"
+            android:textStyle="bold"
+            tools:text="@string/scanning" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
     <androidx.camera.view.PreviewView
         android:id="@+id/view_finder"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/detection_state_container" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/take_photo_btn"
-        android:layout_width="@dimen/take_photo_btn_width"
-        android:layout_height="@dimen/take_photo_btn_height"
+        android:layout_width="@dimen/take_photo_btn_size"
+        android:layout_height="@dimen/take_photo_btn_size"
         android:layout_marginBottom="@dimen/take_photo_btn_marginBottom"
         android:elevation="@dimen/take_photo_btn_elevation"
         android:text="@string/take_photo"
-        android:visibility="gone"
+        android:background="@drawable/camera_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
